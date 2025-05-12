@@ -1,11 +1,14 @@
+
 import React from "react";
 import Question from "./Question";
 import QuestionList from "./QuestionList";
 import { useState } from "react";
+
 import QuestionsData from "../assets/QuestionsData";
 import NextButton from "./NextButton";
 
 const QuestionWindow = () => {
+  
   const [question, setQuestion] = useState({
     id: "1",
     text: "Which of the following is correct option, please select it?",
@@ -20,6 +23,7 @@ const QuestionWindow = () => {
       : (index = index);
     ind = index - 1;
     setQuestion(QuestionsData[ind]);
+
   };
 
   return (
@@ -41,6 +45,7 @@ const QuestionWindow = () => {
         <QuestionList getQuestion={getQuestion} />
       </div>
       <NextButton getQuestion={getQuestion} index={question.id} />
+
     </>
   );
 };
