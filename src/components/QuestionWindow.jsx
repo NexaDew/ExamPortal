@@ -5,21 +5,17 @@ import QuestionsData from "../assets/QuestionsData";
 import NextButton from "./NextButton";
 
 const QuestionWindow = () => {
-  const [question, setQuestion] = useState({
-    id: "1",
-    text: "Which of the following is correct option, please select it?",
-    options: ["Option1", "Option2", "Option3", "Option4"],
-  });
-
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // start from index 0
+  const [answers, setAnswers] = useState({}); // Stores selected options by question ID
   const [timeLeft, setTimeLeft] = useState(3 * 60 * 60); // 3 hours
   const [timerStarted, setTimerStarted] = useState(false);
+
+  const currentQuestion = QuestionsData[currentQuestionIndex];
 
   useEffect(() => {
     let timer;
     if (timerStarted && timeLeft > 0) {
-      timer = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
+      timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
     }
     return () => clearInterval(timer);
   }, [timerStarted, timeLeft]);
@@ -31,9 +27,13 @@ const QuestionWindow = () => {
     return `${hrs}:${mins}:${secs}`;
   };
 
-  const getQuestion = (index) => {
-    if (index <= QuestionsData.length) {
-      setQuestion(QuestionsData[index - 1]);
+  const handleAnswerSelect = (questionId, optionIndex) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: optionIndex }));
+  };
+
+  const goToQuestion = (index) => {
+    if (index >= 0 && index < QuestionsData.length) {
+      setCurrentQuestionIndex(index);
     }
   };
 
@@ -61,18 +61,25 @@ const QuestionWindow = () => {
         <>
           <div className="flex flex-col md:flex-row justify-between">
             <Question
-              index={question.id}
-              text={question.text}
-              options={question.options}
+              index={currentQuestion.id}
+              text={currentQuestion.text}
+              options={currentQuestion.options}
+              selectedOption={answers[currentQuestion.id]}
+              onSelect={(optionIndex) =>
+                handleAnswerSelect(currentQuestion.id, optionIndex)
+              }
             />
             <QuestionList
-              getQuestion={getQuestion}
+              getQuestion={(index) => goToQuestion(index)}
               timeLeft={formatTime(timeLeft)}
               timerStarted={timerStarted}
             />
           </div>
 
-          <NextButton getQuestion={getQuestion} index={question.id} />
+          <NextButton
+            getQuestion={(index) => goToQuestion(index)}
+            index={currentQuestionIndex}
+          />
         </>
       )}
     </>
